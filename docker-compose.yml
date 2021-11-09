@@ -1,13 +1,5 @@
 version: "3.8"
 services:
-  # adventures:
-  #   build:
-  #     context: ./adventures
-  #     dockerfile: Dockerfile
-  #   restart: on-failure
-  #   container_name: adventures
-  #   ports:
-  #     - 8000:8000
   mongodb:
     image: 'mongo'
     volumes:
@@ -49,7 +41,7 @@ services:
       - mongodb
   portfolio_client:
     build:
-      context: ./portfolioClient
+      context: ./portfolio_client
       dockerfile: Dockerfile
     restart: on-failure
     container_name: portfolio_client
