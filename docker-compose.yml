@@ -1,0 +1,75 @@
+version: "3.8"
+services:
+  # adventures:
+  #   build:
+  #     context: ./adventures
+  #     dockerfile: Dockerfile
+  #   restart: on-failure
+  #   container_name: adventures
+  #   ports:
+  #     - 8000:8000
+  mongodb:
+    image: 'mongo'
+    volumes:
+      - data:/data/db
+    container_name: mongodb
+  memory_backend:
+    build:
+      context: ./memoryBackend
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: memory_backend
+    volumes:
+      - publicMemory:/app/server/public
+    ports:
+      - '3003:3003'
+    depends_on:
+      - mongodb
+  memory_client:
+    build:
+      context: ./memoryClient
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: memory_client
+    ports:
+      - '3002:3002'
+    depends_on:
+      - memory_backend
+  portfolio_backend:
+    build:
+      context: ./portfolioBackend
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: portfolio_backend
+    volumes:
+      - publicPortfolio:/app/public
+    ports:
+      - '3001:3001'
+    depends_on: 
+      - mongodb
+  portfolio_client:
+    build:
+      context: ./portfolioClient
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: portfolio_client
+    ports:
+      - '3000:3000'
+    depends_on:
+      - portfolio_backend
+  nginx:
+    container_name: nginx
+    depends_on:
+      - portfolio_client
+      - memory_client
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - '80:80'
+
+volumes:
+  data:
+  publicPortfolio:
+  publicMemory:
